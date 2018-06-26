@@ -59,18 +59,14 @@ namespace Web.Controllers.MVC
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Persona persona)
         {
-
-            
-
-
-            //if (ModelState.IsValid)
-            //{
-            //    _context.Add(persona);
-            //    await _context.SaveChangesAsync();
-            //    return RedirectToAction(nameof(Index));
-            //}
-            //ViewData["IdGenero"] = new SelectList(_context.Genero, "IdGenero", "IdGenero", persona.IdGenero);
-            //return View(persona);
+            if (ModelState.IsValid)
+            {
+                _context.Add(persona);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["IdGenero"] = new SelectList(_context.Genero, "IdGenero", "IdGenero", persona.IdGenero);
+            return View(persona);
         }
 
         // GET: Personas/Edit/5
