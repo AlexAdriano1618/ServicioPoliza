@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Datos;
 using Entidades;
 using Entidades.Utils;
+using System;
 
 namespace Web.Controllers.Api
 {
@@ -27,111 +28,181 @@ namespace Web.Controllers.Api
         {
             return _context.Persona;
         }
-
-        // GET: api/Personas/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetPersona([FromRoute] int id)
+        public async Task<Response> GetPersona([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = Mensaje.ModeloInvalido,
+                    };
+                }
+
+                var ciudad = await _context.Persona.SingleOrDefaultAsync(m => m.IdPersona == id);
+
+                if (ciudad == null)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = Mensaje.RegistroNoEncontrado,
+                    };
+                }
+
+                return new Response
+                {
+                    IsSuccess = true,
+                    Message = Mensaje.Satisfactorio,
+                    Resultado = ciudad,
+                };
             }
-
-            var persona = await _context.Persona.SingleOrDefaultAsync(m => m.IdPersona == id);
-
-            if (persona == null)
+            catch (Exception ex)
+            {                
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = Mensaje.Error,
+                };
+            }
+        }
+        [HttpPut("{id}")]
+        public async Task<Response> PutPersona([FromRoute] int id, [FromBody] Persona persona)
+        {
+            try
             {
-                return NotFound();
-            }
+                if (!ModelState.IsValid)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = Mensaje.ModeloInvalido,
+                    };
+                }
+                var ciudadActualizar = await _context.Persona.Where(x => x.IdPersona == id).FirstOrDefaultAsync();
+                if (ciudadActualizar != null)
+                {
+                    try
+                    {
+                        ciudadActualizar.Nombre = persona.Nombre;
+                        _context.Persona.Update(ciudadActualizar);
+                        await _context.SaveChangesAsync();
 
-            return Ok(persona);
+                        return new Response
+                        {
+                            IsSuccess = true,
+                            Message = Mensaje.Satisfactorio,
+                        };
+
+                    }
+                    catch (Exception ex)
+                    {
+                       
+                        return new Response
+                        {
+                            IsSuccess = false,
+                            Message = Mensaje.Error,
+                        };
+                    }
+                }
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = Mensaje.ExisteRegistro
+                };
+            }
+            catch (Exception)
+            {
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = Mensaje.Excepcion
+                };
+            }
         }
 
         // PUT: api/Personas/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPersona([FromRoute] int id, [FromBody] Persona persona)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != persona.IdPersona)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(persona).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PersonaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Personas
+        
         [HttpPost]
         [Route("InsertarPersona")]
-        public async Task<IActionResult> PostPersona([FromBody] Persona persona)
+        public async Task<Response> PostPersona([FromBody] Persona persona)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = Mensaje.ModeloInvalido
+                    };
+                }
+
+                _context.Persona.Add(persona);
+                    await _context.SaveChangesAsync();
+                    return new Response
+                    {
+                        IsSuccess = true,
+                        Message = Mensaje.Satisfactorio
+                    };            
+
+
             }
-
-            _context.Persona.Add(persona);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPersona", new { id = persona.IdPersona }, persona);
-            //if (!ModelState.IsValid)
-            //{
-            //    return new Response
-            //    {
-            //        IsSuccess = false,
-            //        Message = Mensaje.ModeloInvalido
-            //    };
-            //}
-            //_context.Persona.Add(persona);
-            //await _context.SaveChangesAsync();
-            //return new Response
-            //{
-            //    IsSuccess = true
-            //    Message = Mensaje.Satisfactorio
-            //};
+            catch (Exception ex)
+            {
+                
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = Mensaje.Error,
+                };
+            }
         }
+        
 
         // DELETE: api/Personas/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePersona([FromRoute] int id)
+        public async Task<Response> DeletePersona([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = Mensaje.ModeloInvalido,
+                    };
+                }
 
-            var persona = await _context.Persona.SingleOrDefaultAsync(m => m.IdPersona == id);
-            if (persona == null)
+                var respuesta = await _context.Persona.SingleOrDefaultAsync(m => m.IdPersona == id);
+                if (respuesta == null)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = Mensaje.RegistroNoEncontrado,
+                    };
+                }
+                _context.Persona.Remove(respuesta);
+                await _context.SaveChangesAsync();
+
+                return new Response
+                {
+                    IsSuccess = true,
+                    Message = Mensaje.Satisfactorio,
+                };
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = Mensaje.Error,
+                };
             }
-
-            _context.Persona.Remove(persona);
-            await _context.SaveChangesAsync();
-
-            return Ok(persona);
         }
 
         private bool PersonaExists(int id)
