@@ -28,6 +28,7 @@ namespace Web.Controllers.Api
         {
             return _context.Persona;
         }
+        [HttpGet("{id}")]
         public async Task<Response> GetPersona([FromRoute] int id)
         {
             try
