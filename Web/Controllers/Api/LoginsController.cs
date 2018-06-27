@@ -30,13 +30,13 @@ namespace Web.Controllers.Api
             return _context.Login;
         }
         [HttpPost]
-        [Route("ObtenerUser")]
-        public async Task<Response> ObtenerUser([FromBody] Login login)
+        [Route("ObtenerUsuario")]
+        public async Task<Response> ObtenerUsuario([FromBody] Login login)
         {
             try
             {
-                var ciudadActualizar = await _context.Login.Where(x => x.Usuario == login.Usuario && x.Clave == login.Clave).FirstOrDefaultAsync();
-                if (ciudadActualizar != null)
+                var LogUser = await _context.Login.Where(x => x.Usuario == login.Usuario && x.Clave == login.Clave).FirstOrDefaultAsync();
+                if (LogUser != null)
                 {
                     return new Response
                     {
