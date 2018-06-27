@@ -31,6 +31,8 @@ namespace Entidades.Utils
         ////
         public static string ConceptoNoExiste { get { return "El concepto no existe en el proceso al cual pertenece el presente cálculo de nómina."; } }
         public static string EmpleadoNoExiste { get { return "Identificación del empleado no existe."; } }
+        public static string UsuarioEncontrado { get { return "Usuario encontrado."; } }
+        public static string ErrorUsuarioEncontrado { get { return "No se encontro el usuario encontrado."; } }
 
 
     }
