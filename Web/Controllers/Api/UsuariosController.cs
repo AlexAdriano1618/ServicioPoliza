@@ -34,22 +34,43 @@ namespace Web.Controllers.Api
         [HttpGet("{id}")]
         public async Task<Response> GetUsuarios([FromRoute] int id)
         {
-            var usuarios = await _context.Usuarios.SingleOrDefaultAsync(m => m.IdUsuario == id);
-            if (usuarios != null)
+            try
             {
+                if (!ModelState.IsValid)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = Mensaje.ModeloInvalido,
+                    };
+                }
+
+                var usuarios = await _context.Usuarios.SingleOrDefaultAsync(m => m.IdUsuario == id);
+
+                if (usuarios == null)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = Mensaje.RegistroNoEncontrado,
+                    };
+                }
+
                 return new Response
                 {
                     IsSuccess = true,
                     Message = Mensaje.Satisfactorio,
-                    Resultado = usuarios
+                    Resultado = usuarios,
                 };
             }
-
-            return new Response
+            catch (Exception ex)
             {
-                IsSuccess = false,
-                Message = Mensaje.ModeloInvalido
-            };
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = Mensaje.Error,
+                };
+            }
         }
 
         // PUT: api/Usuarios/5
